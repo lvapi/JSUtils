@@ -1,4 +1,5 @@
 <template>
+  <!-- 样式的动态绑定和计算属性的返回值相关 -->
   <div :class="[
     type === 'textarea' ? 'el-textarea' : 'el-input',
     inputSize ? 'el-input--' + inputSize : '',
@@ -15,11 +16,14 @@
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
+    <!-- 当鼠标进入时将hovering设置为ture移出时将其设置为false -->
     <template v-if="type !== 'textarea'">
       <!-- 前置元素 -->
+      <!-- 通过具名插槽的方式获得前置元素 -->
       <div class="el-input-group__prepend" v-if="$slots.prepend">
         <slot name="prepend"></slot>
       </div>
+      <!-- $attrs 获取不通过props传入子组件的值通常用于绑定传入的原生属性-->
       <input
         :tabindex="tabindex"
         v-if="type !== 'textarea'"
@@ -122,7 +126,7 @@
     name: 'ElInput',
 
     componentName: 'ElInput',
-
+    // 混入
     mixins: [emitter, Migrating],
 
     inheritAttrs: false,
@@ -219,12 +223,18 @@
       inputSize() {
         return this.size || this._elFormItemSize || (this.$ELEMENT || {}).size;
       },
+      /* 判断文本框是否禁止输入字符 disabled数据来源：
+      1. this.disabled直接使用时父组件绑定传入的值
+      2. 使用from表单时 inject/provide注入的值
+      */
       inputDisabled() {
         return this.disabled || (this.elForm || {}).disabled;
       },
+      /* 将输入的值转换成字符串输出 */
       nativeInputValue() {
         return this.value === null || this.value === undefined ? '' : String(this.value);
       },
+      /* 当clearable属性为true 不为禁用状态和只读状态 数据存在值 并且获得焦点或鼠标悬停 显示清除按钮 */
       showClear() {
         return this.clearable &&
           !this.inputDisabled &&
@@ -306,9 +316,12 @@
           }
         };
       },
+      // 失去焦点时触发
       handleBlur(event) {
         this.focused = false;
         this.$emit('blur', event);
+        // 调用从 emitter中混入的方法 在表单中时使其 el-from-item 触发失去焦点方法
+        // 及执行 onFieldBlur() {this.validate('blur')}进行数据绑定的校验
         if (this.validateEvent) {
           this.dispatch('ElFormItem', 'el.form.blur', [this.value]);
         }
@@ -355,6 +368,7 @@
           this.handleInput(event);
         }
       },
+      // 当有值输入时触发事件
       handleInput(event) {
         // should not emit input during composition
         // see: https://github.com/ElemeFE/element/issues/10516
@@ -400,6 +414,7 @@
         this.calcIconOffset('prefix');
         this.calcIconOffset('suffix');
       },
+      /* 点击清除按钮时触发在父组件绑定的方法 */
       clear() {
         this.$emit('input', '');
         this.$emit('change', '');
