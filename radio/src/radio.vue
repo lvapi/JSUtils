@@ -133,6 +133,7 @@
 
     methods: {
       handleChange() {
+        // 当渲染完成后立即进行触发 此时触发的生命周期钩子函数为beforeUpdate/Update
         this.$nextTick(() => {
           this.$emit('change', this.model);
           this.isGroup && this.dispatch('ElRadioGroup', 'handleChange', this.model);
