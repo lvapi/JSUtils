@@ -51,3 +51,18 @@ const deepClone = function() {
   console.log(cloneDeep(arr))
   console.log(arr)
 }
+/*
+ *返回给定数据的类型
+ */
+const valueType = function(val) {
+  if (typeof val !== 'object') {
+    return typeof val
+  } else {
+    // typof null 为object
+    if (val === null) {
+      return 'null'
+    } else {
+      return Object.prototype.toString.call(val)
+    }
+  }
+}
